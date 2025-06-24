@@ -1,0 +1,223 @@
+<div class="grid">
+	<div class="col-12">
+		<div class="card">
+            <p-tabView>
+                <p-tabPanel>
+                    <ng-template pTemplate="header">
+                        <i class="pi pi-user" style="margin-right: 8px;"></i> Control Profesores
+                    </ng-template>
+                    <div class="card">
+                        <p-table [value]="profesores$ | async" [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '60rem' }">
+                            <ng-template pTemplate="header">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Código</th>
+                                    <th>Paralelos a Cargo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </ng-template>
+
+                            <ng-template pTemplate="body" let-profesor>
+                                <tr>
+                                    <td>{{ profesor.profesor_id }}</td>
+                                    <td>{{ profesor.nombre }}</td>
+                                    <td>{{ profesor.apellido }}</td>
+                                    <td>{{ profesor.codigo }}</td>
+                                    <td>{{ profesor.paralelos_asignados || '-' }}</td>
+                                    <td>
+                                        <button pButton class="p-button-rounded p-button-info p-button-outlined"
+                                                icon="pi pi-pencil"
+                                                (click)="abrirDialogoEditar(profesor)"
+                                                style="margin-right: 0.5rem">
+                                        </button>
+                                        <button
+                                            pButton
+                                            class="p-button-rounded p-button-danger p-button-outlined"
+                                            icon="pi pi-trash"
+                                            (click)="confirmarEliminarProfesor(profesor)">
+                                        </button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                    </div>
+                </p-tabPanel>
+                <p-toast></p-toast>
+
+                <p-dialog 
+                    header="Editar Profesor" 
+                    [(visible)]="dialogVisible" 
+                    [modal]="true" 
+                    [style]="{ width: '450px' }" 
+                    [closable]="false" 
+                    [dismissableMask]="true"
+                    [breakpoints]="{ '960px': '90vw' }">
+
+                    <form [formGroup]="editForm">
+                        <div class="p-fluid">
+                            <div class="field">
+                                <label>Nombre</label>
+                                <input pInputText formControlName="nombre" />
+                            </div>
+
+                            <div class="field">
+                                <label>Apellido</label>
+                                <input pInputText formControlName="apellido" />
+                            </div>
+
+                            <div class="field">
+                                <label>Código</label>
+                                <input pInputText formControlName="codigo" />
+                            </div>
+
+                            <div class="mb-4" *ngIf="editForm">
+                                <label class="block text-900 text-xl font-medium mb-2">Paralelos asignados</label>
+                                <div class="flex justify-content-center flex-wrap gap-3">
+                                    <div *ngFor="let paralelo of paralelosDisponibles">
+                                        <p-checkbox
+                                        [inputId]="'edit_paralelo_' + paralelo"
+                                        [label]="'Paralelo ' + paralelo"
+                                        [value]="paralelo"
+                                        [(ngModel)]="paralelosSeleccionadosEdit"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (onChange)="onParaleloChange(paralelosSeleccionadosEdit)">
+                                        </p-checkbox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <ng-template pTemplate="footer">
+                        <button pButton icon="pi pi-times" label="Cancelar" class="p-button-danger" (click)="dialogVisible = false"></button>
+                        <button pButton icon="pi pi-check" label="Guardar" class="p-button-success" (click)="guardarCambios()" [disabled]="editForm.invalid"></button>
+                    </ng-template>
+                </p-dialog>
+                <p-confirmDialog
+                    key="confirmarEliminarProfesor"
+                    header="Confirmación"
+                    icon="pi pi-exclamation-triangle"
+                    message="¿Estás seguro de que deseas eliminar al profesor?"
+                    acceptLabel="Sí"
+                    rejectLabel="No"
+                    acceptButtonStyleClass="p-button-danger"
+                    rejectButtonStyleClass="p-button-secondary">
+                </p-confirmDialog>
+
+
+                <p-tabPanel>
+                  <ng-template pTemplate="header">
+                      <i class="pi pi-plus" style="margin-right: 8px;"></i> Nuevos Usuarios
+                  </ng-template>
+                  
+                  <!-- Contenedor principal con fondo y bordes -->
+                  <div style="border-radius:56px; padding:0.3rem; background: linear-gradient(180deg, var(--green-400) 10%, rgba(33, 150, 243, 0) 30%);">
+                      <div class="w-full surface-card py-8 px-5 sm:px-8" style="border-radius:53px">
+                          
+                          <div class="text-center mb-5">
+                              <div class="text-900 text-3xl font-medium mb-3">FORMULARIO DE REGISTRO</div>
+                              <span class="text-600 font-medium">Profesores</span>
+                          </div>
+                        
+                          <div class="flex justify-content-center">
+                                <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="w-full md:w-30rem">
+                                <!-- Nombre -->
+                                <div class="mb-4">
+                                    <label for="nombre" class="block text-900 text-xl font-medium mb-2">Nombre</label>
+                                    <input id="nombre" type="text" placeholder="Nombre" formControlName="nombre" pInputText class="w-full" style="padding:1rem" />
+                                    <div *ngIf="registerForm.get('nombre')?.invalid && registerForm.get('nombre')?.touched" class="text-red-500">
+                                    <ng-container *ngIf="registerForm.get('nombre')?.errors?.['required']">
+                                        El nombre es obligatorio.
+                                    </ng-container>
+                                    <ng-container *ngIf="registerForm.get('nombre')?.errors?.['pattern']">
+                                        El nombre solo debe contener letras.
+                                    </ng-container>
+                                    </div>
+                                </div>
+
+                                <!-- Apellido -->
+                                <div class="mb-4">
+                                    <label for="apellido" class="block text-900 text-xl font-medium mb-2">Apellido</label>
+                                    <input id="apellido" type="text" placeholder="Apellido" formControlName="apellido" pInputText class="w-full" style="padding:1rem" />
+                                    <div *ngIf="registerForm.get('apellido')?.invalid && registerForm.get('apellido')?.touched" class="text-red-500">
+                                    <ng-container *ngIf="registerForm.get('apellido')?.errors?.['required']">
+                                        El apellido es obligatorio.
+                                    </ng-container>
+                                    <ng-container *ngIf="registerForm.get('apellido')?.errors?.['pattern']">
+                                        El apellido solo debe contener letras.
+                                    </ng-container>
+                                    </div>
+                                </div>
+
+                                <!-- Código -->
+                                <div class="mb-4">
+                                    <label for="codigo" class="block text-900 text-xl font-medium mb-2">Código</label>
+                                    <input id="codigo" type="text" placeholder="Código" formControlName="codigo" pInputText class="w-full" style="padding:1rem" />
+                                    <div *ngIf="registerForm.get('codigo')?.invalid && registerForm.get('codigo')?.touched" class="text-red-500">
+                                    El código es obligatorio.
+                                    </div>
+                                </div>
+
+                                <!-- Contraseña -->
+                                <div class="mb-4">
+                                    <label for="contraseña" class="block text-900 font-medium text-xl mb-2">Contraseña</label>
+                                    <p-password id="contraseña" placeholder="Contraseña" formControlName="contraseña" [toggleMask]="true" styleClass="w-full mb-5" inputStyleClass="p-3 w-full"></p-password>
+                                    <div *ngIf="registerForm.get('contraseña')?.invalid && registerForm.get('contraseña')?.touched" class="text-red-500">
+                                    La contraseña es obligatoria y debe tener al menos 6 caracteres.
+                                    </div>
+                                </div>
+                                <!-- Materia -->
+                                <div class="mb-4">
+                                <label for="materia_id" class="block text-900 text-xl font-medium mb-2">Materia</label>
+                                    <p-dropdown
+                                    [options]="materias"
+                                    formControlName="materia_id"
+                                    optionLabel="label"
+                                    optionValue="value"
+                                    placeholder="Selecciona una materia"
+                                    [showClear]="true"
+                                    [appendTo]="'body'"
+                                    [style]="{ width: '100%' }"        
+                                    [panelStyle]="{ width: '100%' }"
+                                    [styleClass]="'w-full'">
+                                    </p-dropdown>
+                                    <small class="p-error" *ngIf="registerForm.get('materia_id')?.invalid && registerForm.get('materia_id')?.touched">
+                                        La materia es obligatoria.
+                                    </small>
+                                </div>
+
+                                <!-- Paralelos (checkbox multiple) -->
+                                <div class="mb-4">
+                                <label class="block text-900 text-xl font-medium mb-2">Paralelos asignados</label>
+                                    <div class="grid formgrid">
+                                        <div class="col-12 md:col-6 lg:col-3" *ngFor="let paralelo of paralelosDisponibles">
+                                            <div class="field-checkbox">
+                                                <p-checkbox 
+                                                [inputId]="'paralelo_' + paralelo"
+                                                [value]="paralelo"
+                                                [binary]="true"
+                                                [checked]="paralelosFormArray.value.includes(paralelo)"
+                                                (onChange)="toggleParalelo($event, paralelo)">
+                                                </p-checkbox>
+                                                <label [for]="'paralelo_' + paralelo">{{ paralelo }}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botón registrar -->
+                                <div class="mt-6">
+                                    <button pButton pRipple label="Registrar Profesor" class="p-button-success w-full p-3 text-xl"  type="submit" [disabled]="registerForm.invalid"></button>
+                                </div>
+                            </form>
+
+                          </div>
+                      </div>
+                  </div>
+              </p-tabPanel>      
+            </p-tabView>               
+        </div>
+    </div>
+</div>

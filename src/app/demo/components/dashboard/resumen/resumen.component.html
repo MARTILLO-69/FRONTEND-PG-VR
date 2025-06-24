@@ -1,0 +1,215 @@
+<div class="grid">
+<!-- Toolbar para ADMIN -->
+<ng-container *ngIf="rol === 'administrador'">
+  <div class="col-12">
+    <div class="card surface-card shadow-2 p-3 mb-3 border-round">
+      <p-toolbar>
+        <div class="p-toolbar-group-left">
+          <h3 class="m-0 text-900 font-bold tracking-wide text-xl" style="font-family: 'Segoe UI', sans-serif;">
+            DASHBOARD
+          </h3>
+        </div>
+        <div class="p-toolbar-group-right">
+          <span class="text-lg font-medium text-600">👋 Bienvenido, 
+            <span class="text-900 font-semibold">{{ nombreUsuario }}</span>
+          </span>
+        </div>
+      </p-toolbar>
+    </div>
+  </div>
+</ng-container>
+
+<!-- Toolbar para PROFESOR reducido -->
+<ng-container *ngIf="rol === 'profesor'">
+  <div class="col-12 lg:col-6">
+    <div class="card surface-card shadow-2 p-3 mb-3 border-round h-full">
+      <p-toolbar
+        style="display: flex; align-items: center; height: 100%;">
+        <div class="p-toolbar-group-left" style="display: flex; align-items: center;">
+          <h4 class="m-0 text-900 font-bold tracking-wide text-xl" style="font-family: 'Segoe UI', sans-serif;">
+            DASHBOARD
+          </h4>
+        </div>
+        <div class="p-toolbar-group-right" style="display: flex; align-items: center;">
+          <span class="text-md font-medium text-600" style="font-family: 'Segoe UI', sans-serif;">
+            👋 Bienvenido, <span class="text-900 font-semibold">{{ nombreUsuario }}</span>
+          </span>
+        </div>
+      </p-toolbar>
+    </div>
+  </div>
+</ng-container>
+
+<!--Toolbar para el estudiante y sus datos-->
+<ng-container *ngIf="rol === 'estudiante'">
+  <div class="col-12">
+    <div class="card surface-card shadow-2 p-3 mb-3 border-round">
+      <p-toolbar>
+        <div class="p-toolbar-group-left">
+          <h3 class="m-0 text-900 font-bold tracking-wide text-xl" style="font-family: 'Segoe UI', sans-serif;">
+            DASHBOARD
+          </h3>
+        </div>
+        <div class="p-toolbar-group-right">
+          <span class="text-lg font-medium text-600">👋 Bienvenido, 
+            <span class="text-900 font-semibold">{{ nombreUsuario }}</span>
+          </span>
+        </div>
+      </p-toolbar>
+    </div>
+  </div>
+</ng-container>
+  
+  <!-- 📊 ADMIN: Cards de conteo -->
+  <ng-container *ngIf="rol === 'administrador'">
+    <div class="col-12 lg:col-6 xl:col-3" *ngFor="let card of cardsAdmin">
+        <div class="card mb-0">
+        <div class="flex justify-content-between mb-3">
+            <div>
+            <span class="block text-500 font-medium mb-3">{{ card.label }}</span>
+            <div class="text-900 font-medium text-xl">{{ this[card.valueKey] }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center border-round"
+                [ngStyle]="{ width: '2.5rem', height: '2.5rem', backgroundColor: 'var(--' + card.bg + '-100)' }">
+            <i class="pi {{ card.icon }} text-{{ card.color }}-500 text-xl"></i>
+            </div>
+        </div>
+        </div>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="rol === 'profesor'">
+    <div class="col-12 lg:col-6 xl:col-3" *ngFor="let card of cardsProfesor">
+        <div class="card mb-0">
+        <div class="flex justify-content-between mb-3">
+            <div>
+            <span class="block text-500 font-medium mb-3">{{ card.label }}</span>
+            <div class="text-900 font-medium text-xl">{{ this[card.valueKey] }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center border-round"
+                [ngStyle]="{ width: '2.5rem', height: '2.5rem', backgroundColor: 'var(--' + card.bg + '-100)' }">
+            <i class="pi {{ card.icon }} text-{{ card.color }}-500 text-xl"></i>
+            </div>
+        </div>
+        </div>
+    </div>
+  </ng-container>
+
+<ng-container *ngIf="rol === 'administrador'">
+  <div class="col-12 xl:col-6">
+        <div class="card">
+            <div class="flex justify-content-between align-items-center mb-5">
+                <h5>Avance Niveles</h5>
+            </div>
+            <ul class="list-none p-0 m-0">
+                <li *ngFor="let item of avancePorParalelo" class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                    <div>
+                        <span class="text-900 font-medium mr-2 mb-1 md:mb-0">{{ item.nivel_nombre }}</span>
+                        <div class="mt-1 text-600">Paralelo {{ item.paralelo }}</div>
+                    </div>
+                    <div class="mt-2 md:mt-0 flex align-items-center">
+                        <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px;">
+                            <div class="bg-green-500 h-full" [ngStyle]="{width: item.promedio_avance + '%'}"></div>
+                        </div>
+                        <span class="ml-3 font-medium text-green-500">%{{ item.promedio_avance }}</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="col-12 xl:col-6">
+            <div class="card">
+                <h5>Últimas Actividades Realizadas</h5>
+                <p-timeline [value]="ultimasActividades" align="alternate" layout="vertical">
+                <ng-template pTemplate="opposite" let-actividad>
+                    <div class="text-right">
+                    <div class="font-bold text-900">{{ actividad.estudiante }}</div>
+                    <div class="text-600 text-sm">Paralelo {{ actividad.paralelo }}</div>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="content" let-actividad>
+                    <div>
+                    <small class="p-text-secondary">{{ actividad.date }}</small>
+                    <div class="mt-2 text-900 font-medium">{{ actividad.status }}</div>
+                    </div>
+                </ng-template>
+                </p-timeline>
+            </div>
+        </div>
+    </ng-container>
+
+
+    <ng-container *ngIf="rol === 'profesor'">
+    <div class="col-12 xl:col-6">
+        <div class="card">
+            <h5>Avance por Niveles</h5>
+            <ul class="list-none p-0 m-0">
+            <li *ngFor="let item of avancePorParalelo" class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4">
+                <div>
+                <span class="text-900 font-medium mr-2 mb-1 md:mb-0">{{ item.nivel_nombre }}</span>
+                </div>
+                <div class="mt-2 md:mt-0 flex align-items-center">
+                <div class="surface-300 border-round overflow-hidden w-10rem lg:w-6rem" style="height: 8px;">
+                    <div class="bg-green-500 h-full" [ngStyle]="{width: item.promedio_avance + '%'}"></div>
+                </div>
+                <span class="ml-3 font-medium text-green-500">%{{ item.promedio_avance }}</span>
+                </div>
+            </li>
+            </ul>
+        </div>
+    </div>
+
+<div class="col-12 xl:col-6">
+  <div class="card">
+    <h5 class="mb-4">Últimas Entregas de Estudiantes</h5>
+    <ul class="list-none p-0 m-0">
+      <li *ngFor="let entrega of ultimasEntregas" class="mb-3 p-3 border-round surface-100">
+        <div class="text-900 font-semibold mb-1">
+          {{ entrega.nombre_estudiante }} <span class="text-600">| Paralelo {{ entrega.paralelo }}</span>
+        </div>
+        <div class="text-700 mb-1">
+          Actividad: <span class="font-medium">{{ entrega.actividad_nombre }}</span>
+        </div>
+        <div class="text-600 text-sm">
+          Entregado: {{ entrega.fecha_fin ? (entrega.fecha_fin | date: 'dd/MM/yyyy') : 'No entregado' }}
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+    </ng-container>
+
+    <ng-container *ngIf="rol === 'estudiante'">
+      <div class="col-12">
+        <div class="card actividad-resumen" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white;">
+          <h5 class="text-center">📚 Tu Progreso General</h5>
+
+          <div class="nivel-info">
+            <div class="nivel-actual">Nivel: {{ nivelActual }}</div>
+
+            <p-progressBar
+              [value]="porcentajeTotal"
+              [showValue]="true"
+              styleClass="animated-bar"
+              style="margin-top: 0.8rem;">
+            </p-progressBar>
+
+            <div class="progreso-label">
+              Has completado {{ porcentajeTotal }}% de este nivel 🚀
+            </div>
+          </div>
+
+          <ul>
+            <li *ngFor="let act of ultimasActividades">
+              <div class="actividad">📘 {{ act.actividad }}</div>
+              <div class="detalle">Nivel: {{ act.nivel }} | Puntaje: {{ act.puntaje }} | Fecha: {{ act.fecha }}</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+   
+</ng-container>
+</div>
+

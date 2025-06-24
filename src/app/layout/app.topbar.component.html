@@ -1,7 +1,7 @@
 <div class="layout-topbar">
     <a class="layout-topbar-logo" routerLink="">
-        <img src="assets/layout/images/{{layoutService.config().colorScheme === 'light' ? 'logo-dark' : 'logo-white'}}.svg" alt="logo">
-        <span>SAKAI</span>
+        <img src="assets/layout/images/{{layoutService.config().colorScheme === 'light' ? 'logo-oficial-black' : 'logo-oficial'}}.png" alt="logo" height="120" class="mr-0 lg:mr-2">
+        <span>San Antonio de Padua</span>
     </a>
 
     <button #menubutton class="p-link layout-menu-button layout-topbar-button" (click)="layoutService.onMenuToggle()">
@@ -13,17 +13,21 @@
     </button>
 
     <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
-        <button class="p-link layout-topbar-button">
-            <i class="pi pi-calendar"></i>
-            <span>Calendar</span>
-        </button>
-        <button class="p-link layout-topbar-button">
+        <p-overlayPanel #userPanel [dismissable]="true">
+        <div style="padding: 1rem; min-width: 200px;">
+            <div><strong>{{ usuarioNombre }} {{ usuarioApellido }}</strong></div>
+            <div>Materia: Biología</div>
+            <div style="margin-top: 0.5rem;">
+            <button pButton type="button" label="Cerrar sesión" class="p-button-danger p-button-sm w-full"
+                    (click)="cerrarSesion()"></button>
+            </div>
+        </div>
+        </p-overlayPanel>
+
+        <button class="p-link layout-topbar-button" (click)="userPanel.toggle($event)">
             <i class="pi pi-user"></i>
-            <span>Profile</span>
-        </button>
-        <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
-            <i class="pi pi-cog"></i>
-            <span>Settings</span>
+            <span>{{ usuarioNombre }}</span>
         </button>
     </div>
+    
 </div>

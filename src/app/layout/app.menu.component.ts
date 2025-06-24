@@ -13,13 +13,10 @@ export class AppMenuComponent implements OnInit {
     constructor(public layoutService: LayoutService) { }
 
     ngOnInit() {
-        this.model = [
-            {
-                label: 'Home',
-                items: [
-                    { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] }
-                ]
-            },
+        const paginas = JSON.parse(localStorage.getItem('paginas') || '[]');
+        const rol = localStorage.getItem('rol')?.toLowerCase();
+
+        /*this.model = [
             {
                 label: 'UI Components',
                 items: [
@@ -160,6 +157,36 @@ export class AppMenuComponent implements OnInit {
                     }
                 ]
             }
-        ];
+        ];*/
+        // Dashboard
+        const dashboardItems = paginas
+            .filter(p => p.ruta.startsWith('/dashboard'))
+            .map(p => ({ label: p.nombre, icon: 'pi pi-fw pi-home', routerLink: [p.ruta] }));
+        if (dashboardItems.length > 0) {
+            this.model.push({ label: 'Dashboard', items: dashboardItems });
+        }
+
+        // Actividades
+        const actividadesItems = paginas
+            .filter(p => p.ruta.startsWith('/actividades'))
+            .map(p => ({ label: p.nombre, icon: 'pi pi-fw pi-book', routerLink: [p.ruta] }));
+        if (actividadesItems.length > 0) {
+            this.model.push({ label: 'Actividades', items: actividadesItems });
+        }
+
+        // Gestión de Usuarios
+        const usuariosItems = paginas
+            .filter(p => p.ruta.startsWith('/usuarios'))
+            .map(p => ({ label: p.nombre, icon: 'pi pi-fw pi-users', routerLink: [p.ruta] }));
+        if (usuariosItems.length > 0) {
+            this.model.push({ label: 'Usuarios', items: usuariosItems });
+        }
+        if (rol === 'admin') {
+        this.model.push({
+            label: 'Configuración',
+            items: [
+                { label: 'Roles y Permisos', icon: 'pi pi-fw pi-lock', routerLink: ['/usuarios/roles-permisos'] }
+            ]});
+        }
     }
 }
