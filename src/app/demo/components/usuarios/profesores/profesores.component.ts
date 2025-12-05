@@ -57,7 +57,7 @@ export class ProfesoresComponent implements OnInit{
   dialogVisible = false;
   profesorSeleccionado: any = null;
   paralelosDisponibles = ['A', 'B', 'C', 'D'];
-  materias = [ { label: 'Biología', value: 1 } ];
+  materias = [{ label: 'Biología', value: 1 }];
   paralelosSeleccionadosEdit: string[] = [];
 
   constructor(
@@ -75,6 +75,14 @@ export class ProfesoresComponent implements OnInit{
   ngOnInit(): void {
     this.initForm();
     this.cargarProfesores();
+
+    // Escucha cambios para generar contraseña automática
+    this.registerForm.valueChanges.subscribe((values) => {
+      const { nombre, apellido, codigo } = values;
+      if (nombre && apellido && codigo) {
+        this.generarContrasena();
+      }
+    });
   }
 
   initForm() {
@@ -82,9 +90,9 @@ export class ProfesoresComponent implements OnInit{
       nombre: ['', [Validators.required, Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/)]],
       apellido: ['', [Validators.required, Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/)]],
       codigo: ['', Validators.required],
-      contraseña: ['', [Validators.required, Validators.minLength(6)]],
-      materia_id: [1, Validators.required], // ← valor por defecto = Biología
-      paralelos: this.fb.array([])          // ← array de paralelos seleccionados
+      contrasena: ['', [Validators.required, Validators.minLength(6)]],
+      materia_id: [1, Validators.required],
+      paralelos: this.fb.array([])
     });
 
     this.editForm = this.fb.group({
@@ -92,8 +100,19 @@ export class ProfesoresComponent implements OnInit{
       apellido: ['', [Validators.required, Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/)]],
       codigo: ['', Validators.required],
       materia_id: [1, Validators.required],
-      paralelos: this.fb.array([])  // 👈 importante que esté con nombre 'paralelos'
+      paralelos: this.fb.array([])
     });
+  }
+
+  // ⚙️ Generador automático de contraseñas
+  generarContrasena(): void {
+    const nombre = this.registerForm.get('nombre')?.value?.trim().toLowerCase() || '';
+    const apellido = this.registerForm.get('apellido')?.value?.trim().toLowerCase() || '';
+    const codigo = this.registerForm.get('codigo')?.value?.toString() || '';
+    const aleatorio = Math.random().toString(36).substring(2, 4).toUpperCase();
+
+    const sugerencia = `${nombre.slice(0, 3)}${apellido.slice(0, 3)}-${codigo}-${aleatorio}`;
+    this.registerForm.patchValue({ contrasena: sugerencia }, { emitEvent: false });
   }
 
   get paralelosEditFormArray(): FormArray {
@@ -103,24 +122,20 @@ export class ProfesoresComponent implements OnInit{
   get paralelosFormArray(): FormArray {
     return this.registerForm.get('paralelos') as FormArray;
   }
-  
+
   abrirDialogoEditar(profesor: any): void {
     this.profesorSeleccionado = profesor;
     this.dialogVisible = true;
 
     const paralelosArray = profesor.paralelos_asignados
-      ? profesor.paralelos_asignados.split(',').map(p => p.trim())
+      ? profesor.paralelos_asignados.split(',').map((p) => p.trim())
       : [];
 
-    // Reemplazamos el FormArray (internamente puede mantenerse si aún lo usas para enviar)
-    this.paralelosSeleccionadosEdit = [...paralelosArray]; // 👈 esta será la fuente visual
+    this.paralelosSeleccionadosEdit = [...paralelosArray];
 
-    // También puedes llenar el FormArray para cuando hagas submit
     const formArray = this.paralelosEditFormArray;
     formArray.clear();
-    paralelosArray.forEach(paralelo => {
-      formArray.push(new FormControl(paralelo));
-    });
+    paralelosArray.forEach((p) => formArray.push(new FormControl(p)));
 
     this.editForm.patchValue({
       nombre: profesor.nombre,
@@ -128,53 +143,60 @@ export class ProfesoresComponent implements OnInit{
       codigo: profesor.codigo,
       materia_id: 1
     });
-
-    console.log('🧾 FormArray precargado con paralelos:', formArray.value);
   }
 
   onParaleloChange(nuevosParalelos: string[]): void {
     const formArray = this.paralelosEditFormArray;
     formArray.clear();
-
-    nuevosParalelos.forEach(p => {
-      formArray.push(new FormControl(p));
-    });
-
-    console.log('✅ FormArray actualizado desde UI:', formArray.value);
+    nuevosParalelos.forEach((p) => formArray.push(new FormControl(p)));
   }
 
-
-  getParaleloIndex(paralelo: string): number {
-    return this.paralelosEditFormArray.controls.findIndex(c => c.value === paralelo);
-  }
-
-  toggleParaleloEdit(event: any, paralelo: string): void {
-    const formArray = this.paralelosEditFormArray;
-    const index = formArray.controls.findIndex(ctrl => ctrl.value === paralelo);
-
-    if (event.checked && index === -1) {
-      formArray.push(new FormControl(paralelo));
-      console.log('☑️ Añadido:', paralelo);
-    } else if (!event.checked && index !== -1) {
-      formArray.removeAt(index);
-      console.log('❌ Removido:', paralelo);
-    }
-
-    console.log('🧾 Estado actualizado:', formArray.value);
-  }
-
-
-  toggleParalelo(event: any, paralelo: string) {
+  toggleParalelo(event: any, paralelo: string): void {
     if (event.checked) {
       this.paralelosFormArray.push(new FormControl(paralelo));
     } else {
-      const index = this.paralelosFormArray.controls.findIndex(ctrl => ctrl.value === paralelo);
+      const index = this.paralelosFormArray.controls.findIndex((c) => c.value === paralelo);
       if (index >= 0) this.paralelosFormArray.removeAt(index);
     }
   }
 
   cargarProfesores() {
     this.profesores$ = this.apiService.listarProfesores();
+  }
+
+  onRegister(): void {
+    if (this.registerForm.invalid) {
+      this.messageService.add({ severity: 'warn', summary: 'Formulario inválido', detail: 'Completa todos los campos' });
+      return;
+    }
+
+    const { nombre, apellido, codigo, contrasena, materia_id, paralelos } = this.registerForm.value;
+
+    const asignaciones = paralelos.map((p: string) => ({
+      materia_id,
+      paralelo: p
+    }));
+
+    const payload = {
+      nombre,
+      apellido,
+      codigo,
+      contraseña: contrasena, // 👈 backend sigue esperando “contraseña”
+      tipo_usuario: 'P',
+      asignaciones
+    };
+
+    this.api.postRegistrarUsuarios(payload).subscribe({
+      next: () => {
+        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Profesor registrado correctamente' });
+        this.registerForm.reset();
+        this.paralelosFormArray.clear();
+        this.cargarProfesores();
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo registrar el profesor' });
+      }
+    });
   }
 
   guardarCambios(): void {
@@ -194,9 +216,8 @@ export class ProfesoresComponent implements OnInit{
           summary: 'Actualizado',
           detail: 'Profesor editado correctamente'
         });
-
-        this.dialogVisible = false; // 👈 Cierra el formulario
-        this.cargarProfesores();    // 👈 Actualiza tabla
+        this.dialogVisible = false;
+        this.cargarProfesores();
       },
       error: () => {
         this.messageService.add({
@@ -208,67 +229,30 @@ export class ProfesoresComponent implements OnInit{
     });
   }
 
-  onRegister(): void {
-    if (this.registerForm.invalid) {
-      this.messageService.add({ severity: 'warn', summary: 'Formulario inválido', detail: 'Completa todos los campos' });
-      return;
-    }
-
-    const { nombre, apellido, codigo, contraseña, materia_id, paralelos } = this.registerForm.value;
-    const asignaciones = paralelos.map((paralelo: string) => ({
-      materia_id,
-      paralelo
-    }));
-
-    const payload = {
-      nombre,
-      apellido,
-      codigo,
-      contraseña,
-      tipo_usuario: 'P',
-      asignaciones
-    };
-
-    this.api.postRegistrarUsuarios(payload).subscribe({
-      next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Profesor registrado correctamente' });
-
-        // ✅ Limpieza total del formulario y paralelos
-        this.registerForm.reset();
-        this.paralelosFormArray.clear(); // <-- Esto es clave
-
-        this.cargarProfesores();
-      },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo registrar el profesor' });
+  confirmarEliminarProfesor(profesor: any): void {
+    this.confirmationService.confirm({
+      key: 'confirmarEliminarProfesor',
+      message: `¿Deseas eliminar al profesor ${profesor.nombre} ${profesor.apellido}?`,
+      accept: () => {
+        this.api.eliminarUsuarioLogico(profesor.usuario_id).subscribe({
+          next: (res) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Eliminado',
+              detail: res.message || 'Profesor eliminado correctamente'
+            });
+            this.cargarProfesores();
+          },
+          error: () => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'No se pudo eliminar el profesor'
+            });
+          }
+        });
       }
     });
   }
 
-
-  confirmarEliminarProfesor(profesor: any): void {
-  this.confirmationService.confirm({
-    key: 'confirmarEliminarProfesor',
-    message: `¿Deseas eliminar al profesor ${profesor.nombre} ${profesor.apellido}?`,
-    accept: () => {
-      this.api.eliminarUsuarioLogico(profesor.usuario_id).subscribe({
-        next: (res) => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Eliminado',
-            detail: res.message || 'Profesor eliminado correctamente'
-          });
-          this.cargarProfesores();
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'No se pudo eliminar el profesor'
-          });
-        }
-      });
-    }
-  });
-}
 }

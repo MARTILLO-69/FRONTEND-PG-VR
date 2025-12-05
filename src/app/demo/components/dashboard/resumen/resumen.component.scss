@@ -1,4 +1,4 @@
-::ng-deep .p-progressbar.animated-bar .p-progressbar-value {
+/*::ng-deep .p-progressbar.animated-bar .p-progressbar-value {
   animation: progresAnim 1.2s ease-out;
   background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%) !important;
   border-radius: 10px;
@@ -66,4 +66,371 @@ $red: #ef5350;
       }
     }
   }
+}*/
+
+/* ------------------------- */
+/* 🎨 VARIABLES GLOBALES     */
+/* ------------------------- */
+$primary-color: #6a11cb;
+$secondary-color: #2575fc;
+$surface-light: #f3f4f6;
+$text-dark: #2d2d2d;
+$text-soft: #6c757d;
+$green: #00c853;
+$yellow: #ffca28;
+$red: #ef5350;
+
+/* ------------------------- */
+/* 🔹 ANIMACIÓN PROGRESS BAR */
+/* ------------------------- */
+::ng-deep .p-progressbar.animated-bar .p-progressbar-value {
+  animation: progresAnim 1.2s ease-out;
+  background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%) !important;
+  border-radius: 10px;
+}
+@keyframes progresAnim {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* ------------------------- */
+/* 🔹 ESTILOS EXISTENTES     */
+/* (Admin / Profesor)        */
+/* ------------------------- */
+.card.actividad-resumen,
+.card {
+  font-family: 'Poppins', sans-serif;
+
+  h5 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    margin-bottom: 1.5rem;
+  }
+
+  .nivel-info {
+    .nivel-actual {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .progreso-label {
+      font-size: 1rem;
+      font-weight: 500;
+      font-style: italic;
+      margin-top: 0.3rem;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  ul {
+    li {
+      margin-top: 0.5rem;
+
+      .actividad {
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #ffffff;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+      }
+
+      .detalle {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: #e0e0e0;
+        font-style: italic;
+      }
+    }
+  }
+}
+
+/* ------------------------- */
+/* 🧩 NUEVA SECCIÓN: ESTUDIANTE */
+/* ------------------------- */
+.estudiante-resumen {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+  margin-top: 1rem;
+
+  h5 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+
+    i {
+      margin-right: .5rem;
+      color: #ffd54f;
+    }
+  }
+
+  .nivel-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    .nivel-actual {
+      font-size: 1.4rem;
+      font-weight: 600;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+    }
+
+    p-progressBar {
+      width: 100%;
+      margin: 1rem 0;
+    }
+
+    .progreso-label {
+      font-size: 1rem;
+      font-style: italic;
+      color: #f0f0f0;
+    }
+  }
+
+  ul {
+    margin-top: 1rem;
+    list-style: none;
+    padding: 0;
+
+    li {
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem 1rem;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: rgba(255,255,255,0.25);
+      }
+
+      .actividad {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        display: flex;
+        align-items: center;
+
+        i {
+          margin-right: .5rem;
+          font-size: 1.1rem;
+          color: #ffd54f;
+        }
+      }
+
+      .detalle {
+        font-size: 0.9rem;
+        color: #e0e0e0;
+        margin-top: .25rem;
+        font-style: italic;
+      }
+    }
+  }
+}
+
+/* ------------------------- */
+/* 🔹 MEDIA QUERIES opcional */
+/* ------------------------- */
+@media screen and (max-width: 768px) {
+  .estudiante-resumen {
+    padding: 1rem;
+    h5 { font-size: 1.4rem; }
+    .nivel-actual { font-size: 1.2rem; }
+  }
+}
+
+
+.estudiante-dashboard {
+  font-family: 'Poppins', sans-serif;
+  background-color: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  padding: 1.25rem 1.5rem;
+
+  /* Steps */
+  .student-steps {
+    margin-bottom: 1rem;
+
+    .p-steps .p-steps-item .p-menuitem-link {
+      padding: 0.75rem 1rem;
+    }
+    .p-steps .p-steps-number {
+      font-size: 1rem;
+    }
+    .p-steps-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+  }
+
+  /* Contenedores por paso */
+  .step-panel {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  }
+
+  .panel-title {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1f2937;
+
+    i {
+      color: $secondary-color;
+      font-size: 1.2rem;
+    }
+  }
+
+  /* KPIs */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .kpi-card {
+    background: linear-gradient(135deg, #f5f7ff 0%, #eef2ff 100%);
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    transition: all 0.25s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .kpi-label {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: 0.9rem;
+      color: #6b7280;
+
+      i {
+        color: $primary-color;
+        font-size: 1rem;
+      }
+    }
+
+    .kpi-value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #111827;
+      line-height: 1.15;
+    }
+  }
+
+  /* Progreso */
+  ::ng-deep .big-progress.p-progressbar .p-progressbar-value {
+    height: 20px !important;
+    border-radius: 10px;
+  }
+
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.95rem;
+    color: #374151;
+
+    i {
+      color: $secondary-color;
+    }
+  }
+
+  /* Accordion: Actividades recientes */
+  .actividad-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+
+    .actividad-item {
+      display: flex;
+      align-items: center;
+      gap: .3rem;
+      color: #374151;
+
+      .label {
+        font-weight: 600;
+        color: #1f2937;
+      }
+
+      i {
+        color: $primary-color;
+      }
+    }
+  }
+
+  /* Detalle por nivel */
+  .nivel-summary {
+    display: flex;
+    gap: 1.25rem;
+    padding: 0.25rem 0 0.75rem 0;
+    color: #374151;
+    i {
+      color: $secondary-color;
+    }
+  }
+
+  .nivel-actividad {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px dashed #e5e7eb;
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    transition: background 0.3s ease;
+
+    &:hover {
+      background-color: #f9fafb;
+    }
+
+    .left {
+      .title {
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+        font-weight: 700;
+        color: #111827;
+
+        i {
+          color: $primary-color;
+        }
+      }
+      .meta {
+        font-size: 0.85rem;
+        color: #6b7280;
+      }
+    }
+  }
+
+  /* Vacíos */
+  .empty {
+    text-align: center;
+    color: #6b7280;
+    padding: 1rem 0;
+  }
+}
+
+/* Animación ProgressBar (reutiliza la tuya) */
+@keyframes progresAnim {
+  from { width: 0; }
+  to { width: 100%; }
 }

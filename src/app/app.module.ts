@@ -17,7 +17,7 @@ import { DashboardService } from './demo/service/dashboard.service';
     declarations: [AppComponent,],
     imports: [AppRoutingModule, AppLayoutModule, ToastModule],
     providers: [
-        { provide: LocationStrategy, useClass: PathLocationStrategy },
+        { provide: LocationStrategy, useClass: HashLocationStrategy },
         CountryService,
         EventService, 
         IconService, 

@@ -106,6 +106,9 @@ onLogin() {
         localStorage.setItem('rol', rol);
         localStorage.setItem('paginas', JSON.stringify(paginas));
         localStorage.setItem('token', response.token);
+        localStorage.setItem('debe_cambiar_pass', usuario.debe_cambiar_pass ? 'true' : 'false');
+
+        console.log('Usuario logueado:', usuario);
 
         // Redirigir a la primera página
         if (paginas.length > 0) {

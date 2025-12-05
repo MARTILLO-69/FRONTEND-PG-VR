@@ -12,22 +12,94 @@
         <i class="pi pi-ellipsis-v"></i>
     </button>
 
-    <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
-        <p-overlayPanel #userPanel [dismissable]="true">
+    <div #topbarmenu class="layout-topbar-menu"
+     [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
+
+    <!-- PANEL DE NOTIFICACIONES -->
+    <p-overlayPanel #panelNotificaciones [dismissable]="true" styleClass="panel-notis">
+        <div class="notis-container">
+
+            <h4 class="titulo-notis">Notificaciones</h4>
+
+            <div *ngIf="notificaciones.length === 0" class="no-notis">
+                <i class="pi pi-check-circle"></i>
+                <p>No tienes notificaciones pendientes</p>
+            </div>
+
+            <div *ngFor="let n of notificaciones" class="noti-card" (click)="abrirNotificacion(n)">
+                <i class="{{ n.icono }} noti-icon"></i>
+                <div class="noti-texto">
+                    <h5>{{ n.titulo }}</h5>
+                    <p>{{ n.mensaje }}</p>
+                </div>
+                <i class="pi pi-angle-right flecha"></i>
+            </div>
+
+        </div>
+    </p-overlayPanel>
+
+    <!-- 🔔 CAMPANITA 
+    <div class="topbar-notifications">
+        <button class="notif-btn" (click)="panelNotificaciones.toggle($event)"
+        [ngClass]="{ 'has-notification': tieneNotificacionCambioPass }">
+            <i 
+                class="pi pi-bell"
+                pBadge
+                [value]="tieneNotificacionCambioPass ? '!' : null"
+                severity="danger"
+            ></i>
+        </button>
+    </div>-->
+
+    <!-- PANEL DE USUARIO -->
+    <p-overlayPanel #userPanel [dismissable]="true">
         <div style="padding: 1rem; min-width: 200px;">
             <div><strong>{{ usuarioNombre }} {{ usuarioApellido }}</strong></div>
             <div>Materia: Biología</div>
             <div style="margin-top: 0.5rem;">
-            <button pButton type="button" label="Cerrar sesión" class="p-button-danger p-button-sm w-full"
-                    (click)="cerrarSesion()"></button>
+                <button pButton type="button" label="Cerrar sesión"
+                        class="p-button-danger p-button-sm w-full"
+                        (click)="cerrarSesion()"></button>
             </div>
         </div>
-        </p-overlayPanel>
+    </p-overlayPanel>
 
-        <button class="p-link layout-topbar-button" (click)="userPanel.toggle($event)">
-            <i class="pi pi-user"></i>
-            <span>{{ usuarioNombre }}</span>
-        </button>
+    <button class="p-link layout-topbar-button" (click)="userPanel.toggle($event)">
+        <i class="pi pi-user"></i>
+        <span>{{ usuarioNombre }}</span>
+    </button>
+
     </div>
-    
 </div>
+<!-- 🟦 DIÁLOGO CAMBIO DE CONTRASEÑA -->
+        <p-dialog 
+        [(visible)]="dialogCambiarPass" 
+        [modal]="true" 
+        [style]="{ width: '400px' }"
+        header="Cambiar contraseña"
+        [closable]="false"
+        >
+            <div class="p-fluid">
+
+                <div class="field">
+                    <label for="actual">Contraseña actual</label>
+                    <input id="actual" type="password" pInputText [(ngModel)]="formPass.contrasena_actual">
+                </div>
+
+                <div class="field">
+                    <label for="nueva">Nueva contraseña</label>
+                    <input id="nueva" type="password" pInputText [(ngModel)]="formPass.nueva_contrasena">
+                </div>
+
+                <div class="field">
+                    <label for="confirmar">Confirmar nueva contraseña</label>
+                    <input id="confirmar" type="password" pInputText [(ngModel)]="formPass.confirmar_contrasena">
+                </div>
+
+                <div class="footer-dialog" style="display:flex; justify-content:flex-end; margin-top:1rem; gap:10px;">
+                    <button pButton label="Cancelar" class="p-button-danger" (click)="dialogCambiarPass=false"></button>
+                    <button pButton label="Guardar" class="p-button-success" (click)="guardarNuevaPass()"></button>
+                </div>
+
+            </div>
+        </p-dialog>

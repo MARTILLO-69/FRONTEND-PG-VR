@@ -21,9 +21,13 @@ export class ParametricasService {
   listarEstudiantes(): Observable<any> {
     return this.http.get(this.apiUrl+this.apiEstudiantes+'listar');
   }
-  
 
   listarProfesores(): Observable<any> {
     return this.http.get(this.apiUrl+this.apiProfesor+'listar');
   }
+
+  resetPassword(usuarioId: number) {
+    return this.http.post(`${this.apiUrl}usuario/reset-password/${usuarioId}`, {});
+  }
+
 }

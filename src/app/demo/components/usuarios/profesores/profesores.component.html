@@ -161,13 +161,41 @@
                                 </div>
 
                                 <!-- Contraseña -->
+                                <!-- Contraseña autogenerada -->
                                 <div class="mb-4">
-                                    <label for="contraseña" class="block text-900 font-medium text-xl mb-2">Contraseña</label>
-                                    <p-password id="contraseña" placeholder="Contraseña" formControlName="contraseña" [toggleMask]="true" styleClass="w-full mb-5" inputStyleClass="p-3 w-full"></p-password>
-                                    <div *ngIf="registerForm.get('contraseña')?.invalid && registerForm.get('contraseña')?.touched" class="text-red-500">
-                                    La contraseña es obligatoria y debe tener al menos 6 caracteres.
-                                    </div>
+                                <label for="contrasena" class="block text-900 font-medium text-xl mb-2">Contraseña</label>
+
+                                <div class="p-inputgroup">
+                                    <p-password
+                                    id="contrasena"
+                                    placeholder="Generada automáticamente o personalizada"
+                                    formControlName="contrasena"
+                                    [toggleMask]="true"
+                                    styleClass="w-full"
+                                    inputStyleClass="p-3 w-full"
+                                    feedback="false">
+                                    </p-password>
+
+                                    <button
+                                    pButton
+                                    icon="pi pi-refresh"
+                                    type="button"
+                                    class="p-button-outlined p-button-sm"
+                                    (click)="generarContrasena()"
+                                    pTooltip="Regenerar contraseña"
+                                    tooltipPosition="top">
+                                    </button>
                                 </div>
+
+                                <small class="text-500 block mt-2">
+                                    La contraseña se genera automáticamente con el nombre, apellido y código, pero puedes modificarla si lo deseas.
+                                </small>
+
+                                <div *ngIf="registerForm.get('contrasena')?.invalid && registerForm.get('contrasena')?.touched" class="text-red-500 mt-2">
+                                    La contraseña debe tener al menos 6 caracteres.
+                                </div>
+                                </div>
+
                                 <!-- Materia -->
                                 <div class="mb-4">
                                 <label for="materia_id" class="block text-900 text-xl font-medium mb-2">Materia</label>

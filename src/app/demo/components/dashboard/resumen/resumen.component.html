@@ -160,56 +160,137 @@
         </div>
     </div>
 
-<div class="col-12 xl:col-6">
-  <div class="card">
-    <h5 class="mb-4">Últimas Entregas de Estudiantes</h5>
-    <ul class="list-none p-0 m-0">
-      <li *ngFor="let entrega of ultimasEntregas" class="mb-3 p-3 border-round surface-100">
-        <div class="text-900 font-semibold mb-1">
-          {{ entrega.nombre_estudiante }} <span class="text-600">| Paralelo {{ entrega.paralelo }}</span>
-        </div>
-        <div class="text-700 mb-1">
-          Actividad: <span class="font-medium">{{ entrega.actividad_nombre }}</span>
-        </div>
-        <div class="text-600 text-sm">
-          Entregado: {{ entrega.fecha_fin ? (entrega.fecha_fin | date: 'dd/MM/yyyy') : 'No entregado' }}
-        </div>
-      </li>
-    </ul>
-  </div>
-</div>
+    <div class="col-12 xl:col-6">
+      <div class="card">
+        <h5 class="mb-4">Últimas Entregas de Estudiantes</h5>
+        <ul class="list-none p-0 m-0">
+          <li *ngFor="let entrega of ultimasEntregas" class="mb-3 p-3 border-round surface-100">
+            <div class="text-900 font-semibold mb-1">
+              {{ entrega.nombre_estudiante }} <span class="text-600">| Paralelo {{ entrega.paralelo }}</span>
+            </div>
+            <div class="text-700 mb-1">
+              Actividad: <span class="font-medium">{{ entrega.actividad_nombre }}</span>
+            </div>
+            <div class="text-600 text-sm">
+              Entregado: {{ entrega.fecha_fin ? (entrega.fecha_fin | date: 'dd/MM/yyyy') : 'No entregado' }}
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
 
-    </ng-container>
+  </ng-container>
 
-    <ng-container *ngIf="rol === 'estudiante'">
-      <div class="col-12">
-        <div class="card actividad-resumen" style="background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%); color: white;">
-          <h5 class="text-center">📚 Tu Progreso General</h5>
+  <!-- 🔹 SOLO Estudiante -->
+  <ng-container *ngIf="rol === 'estudiante'">
+    <div class="col-12">
+      <div class="card estudiante-dashboard">
+        <!-- Steps (3 pasos) -->
+        <p-steps
+          [model]="studentSteps"
+          [(activeIndex)]="activeStep"
+          [readonly]="false"
+          styleClass="student-steps"
+        ></p-steps>
 
-          <div class="nivel-info">
-            <div class="nivel-actual">Nivel: {{ nivelActual }}</div>
+        <!-- Contenido por paso -->
+        <div [ngSwitch]="activeStep" class="step-container">
+          <!-- Paso 0: Resumen -->
+          <div *ngSwitchCase="0" class="step-panel">
+            <h4 class="panel-title"><i class="pi pi-chart-line mr-2"></i>Tu Progreso General</h4>
+
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <div class="kpi-label"><i class="pi pi-sitemap mr-2"></i>Nivel actual</div>
+                <div class="kpi-value">{{ nivelActual || '—' }}</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label"><i class="pi pi-percentage mr-2"></i>Progreso del nivel</div>
+                <div class="kpi-value">{{ porcentajeTotal | number : '1.0-0' }}%</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label"><i class="pi pi-list-check mr-2"></i>Actividades registradas</div>
+                <div class="kpi-value">{{ ultimasActividades?.length || 0 }}</div>
+              </div>
+            </div>
 
             <p-progressBar
               [value]="porcentajeTotal"
               [showValue]="true"
-              styleClass="animated-bar"
-              style="margin-top: 0.8rem;">
-            </p-progressBar>
+              styleClass="animated-bar big-progress"
+            ></p-progressBar>
 
-            <div class="progreso-label">
-              Has completado {{ porcentajeTotal }}% de este nivel 🚀
+            <div class="legend">
+              <i class="pi pi-bolt mr-2"></i>
+              Has completado {{ porcentajeTotal | number : '1.0-0' }}% de este nivel
             </div>
           </div>
 
-          <ul>
-            <li *ngFor="let act of ultimasActividades">
-              <div class="actividad">📘 {{ act.actividad }}</div>
-              <div class="detalle">Nivel: {{ act.nivel }} | Puntaje: {{ act.puntaje }} | Fecha: {{ act.fecha }}</div>
-            </li>
-          </ul>
+          <!-- Paso 1: Actividades recientes -->
+          <div *ngSwitchCase="1" class="step-panel">
+            <h4 class="panel-title"><i class="pi pi-list-check mr-2"></i>Actividades recientes</h4>
+
+            <p-accordion [multiple]="true">
+              <p-accordionTab *ngFor="let a of ultimasActividadesEstudiante" [header]="a.actividad">
+                <div class="actividad-row">
+                  <div class="actividad-item">
+                    <i class="pi pi-sitemap mr-1"></i><span class="label">Nivel:</span> {{ a.nivel }}
+                  </div>
+                  <div class="actividad-item">
+                    <i class="pi pi-star mr-1"></i><span class="label">Puntaje:</span> {{ a.puntaje }}
+                  </div>
+                  <div class="actividad-item">
+                    <i class="pi pi-calendar mr-1"></i><span class="label">Fecha:</span> {{ a.fecha }}
+                  </div>
+                </div>
+
+                <!-- opcional: progreso visual por actividad -->
+                <p-progressBar
+                  [value]="a.puntaje"
+                  [showValue]="true"
+                  styleClass="small-progress mt-2"
+                ></p-progressBar>
+              </p-accordionTab>
+            </p-accordion>
+
+            <div *ngIf="!ultimasActividadesEstudiante || ultimasActividadesEstudiante.length === 0" class="empty">
+              <i class="pi pi-info-circle mr-2"></i>No tienes actividades registradas aún.
+            </div>
+          </div>
+
+          <!-- Paso 2: Detalle por nivel (agrupado) -->
+          <div *ngSwitchCase="2" class="step-panel">
+            <h4 class="panel-title"><i class="pi pi-chart-bar mr-2"></i>Detalle por nivel</h4>
+
+            <p-accordion [multiple]="true">
+              <p-accordionTab *ngFor="let grupo of actividadesPorNivel" [header]="grupo.nivel + ' (' + grupo.items.length + ')'">
+                <div class="nivel-summary">
+                  <div><i class="pi pi-list mr-1"></i>Total actividades: <strong>{{ grupo.items.length }}</strong></div>
+                  <div><i class="pi pi-star mr-1"></i>Puntaje promedio: <strong>{{ grupo.promedioPuntaje | number:'1.0-2' }}</strong></div>
+                </div>
+
+                <div class="nivel-actividades">
+                  <div class="nivel-actividad" *ngFor="let item of grupo.items">
+                    <div class="left">
+                      <div class="title"><i class="pi pi-book mr-2"></i>{{ item.actividad }}</div>
+                      <div class="meta"><i class="pi pi-calendar mr-1"></i> Fecha: {{ item.fecha }}</div>
+                    </div>
+                    <p-tag [value]="item.puntaje + ' pts'"></p-tag>
+                  </div>
+                </div>
+              </p-accordionTab>
+            </p-accordion>
+
+            <div *ngIf="actividadesPorNivel.length === 0" class="empty">
+              <i class="pi pi-info-circle mr-2"></i>No hay datos para mostrar por nivel.
+            </div>
+          </div>
         </div>
       </div>
-   
-</ng-container>
+    </div>
+  </ng-container>
+
 </div>
 

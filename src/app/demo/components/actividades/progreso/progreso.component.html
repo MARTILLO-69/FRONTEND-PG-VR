@@ -1,4 +1,4 @@
-<div class="grid">
+<!--<div class="grid">
 	<div class="col-12">
 		<ng-container>
 			<div class="card surface-card shadow-2 p-3 mb-3 border-round">
@@ -29,7 +29,7 @@
 				responsiveLayout="scroll"
 				dataKey="estudiante_id"
 				>
-				<!-- Buscador -->
+				
 				<ng-template pTemplate="caption">
 					<div class="flex justify-content-between flex-column sm:flex-row">
 					<span class="p-input-icon-left mb-2">
@@ -39,7 +39,7 @@
 					</div>
 				</ng-template>
 
-				<!-- Cabecera -->
+				
 				<ng-template pTemplate="header">
 					<tr>
 					<th>Nombre</th>
@@ -51,7 +51,7 @@
 					</tr>
 				</ng-template>
 
-				<!-- Cuerpo -->
+				
 				<ng-template pTemplate="body" let-est>
 					<tr *ngIf="est">
 					<td>{{ est.nombre }} {{ est.apellido }}</td>
@@ -125,9 +125,182 @@
 					[disabled]="!fechaInicio || !fechaFin || !observaciones">
 					</button>
 				</ng-template>
-				</p-dialog>
-
+			</p-dialog>
 		</ng-container>
 	</div>
-</div>
+</div>-->
 
+<div class="grid">
+  <div class="col-12">
+
+    <!-- 🔹 Encabezado con toolbar -->
+    <ng-container>
+      <div class="card surface-card shadow-2 p-3 mb-3 border-round">
+        <p-toolbar>
+          <div class="p-toolbar-group-left">
+            <h3 class="m-0 text-900 font-bold tracking-wide text-xl" style="font-family: 'Segoe UI', sans-serif;">
+              Reportes, Seguimiento y Control de Estudiantes
+            </h3>
+          </div>
+
+          <!-- 🔹 Botón para reporte general por paralelo -->
+          <div class="p-toolbar-group-right">
+            <button 
+              pButton 
+              type="button" 
+              icon="pi pi-users" 
+              label="Reporte por Paralelo" 
+              class="p-button-success" 
+              (click)="abrirDialogoParalelo()">
+            </button>
+          </div>
+        </p-toolbar>
+      </div>
+    </ng-container>
+
+    <!-- 🔹 Tabla de estudiantes -->
+    <ng-container>
+      <div class="card">
+        <p-table 
+          #dt 
+          [value]="estudiantes" 
+          [paginator]="true" 
+          [rows]="6"
+          [globalFilterFields]="['nombre','apellido','paralelo']"
+          [scrollable]="true"
+          scrollHeight="400px"
+          responsiveLayout="scroll"
+          dataKey="estudiante_id">
+
+          <!-- Buscador -->
+          <ng-template pTemplate="caption">
+            <div class="flex justify-content-between flex-column sm:flex-row">
+              <span class="p-input-icon-left mb-2">
+                <i class="pi pi-search"></i>
+                <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Buscar estudiante..." class="w-full" />
+              </span>
+            </div>
+          </ng-template>
+
+          <!-- Cabecera -->
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Nombre</th>
+              <th>Paralelo</th>
+              <th>Avance (%)</th>
+              <th>Intentos</th>
+              <th>Nivel actual</th>
+              <th>Acción</th>
+            </tr>
+          </ng-template>
+
+          <!-- Cuerpo -->
+          <ng-template pTemplate="body" let-est>
+            <tr *ngIf="est">
+              <td>{{ est.nombre }} {{ est.apellido }}</td>
+              <td>{{ est.paralelo }}</td>
+              <td>{{ est.avance_general }}%</td>
+              <td>{{ est.total_intentos }}</td>
+              <td>{{ est.nivel_actual || '-' }}</td>
+              <td>
+                <button 
+                  pButton 
+                  type="button" 
+                  icon="pi pi-file" 
+                  label="Reporte" 
+                  class="p-button-outlined p-button-info" 
+                  (click)="abrirDialogo(est)">
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6">No hay estudiantes disponibles.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- 🔹 Diálogo individual -->
+      <p-dialog 
+        header="Generar Reporte de Avance" 
+        [(visible)]="dialogVisible" 
+        [modal]="true" 
+        [style]="{ width: '450px' }"
+        [breakpoints]="{ '960px': '90vw' }" 
+        [closable]="false">
+
+        <div class="p-fluid">
+          <div class="field">
+            <label>Estudiante</label>
+            <input pInputText [value]="estudianteSeleccionado?.nombre + ' ' + estudianteSeleccionado?.apellido" disabled />
+          </div>
+
+          <div class="field">
+            <label>Fecha de Inicio</label>
+            <p-calendar [(ngModel)]="fechaInicio" dateFormat="yy-mm-dd" [showIcon]="true" [appendTo]="'body'"></p-calendar>
+          </div>
+
+          <div class="field">
+            <label>Fecha de Fin</label>
+            <p-calendar [(ngModel)]="fechaFin" dateFormat="yy-mm-dd" [showIcon]="true" [appendTo]="'body'"></p-calendar>
+          </div>
+
+          <div class="field">
+            <label>Observaciones</label>
+            <textarea pInputTextarea [(ngModel)]="observaciones" rows="4" autoResize="true"></textarea>
+          </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+          <button pButton label="Cancelar" icon="pi pi-times" class="p-button-danger" (click)="dialogVisible = false"></button>
+          <button pButton label="Generar" icon="pi pi-file" class="p-button-success" (click)="generarReporte()"
+            [disabled]="!fechaInicio || !fechaFin || !observaciones">
+          </button>
+        </ng-template>
+      </p-dialog>
+
+      <!-- 🔹 Diálogo general por paralelo -->
+      <p-dialog 
+        header="Generar Reporte General por Paralelo" 
+        [(visible)]="dialogParaleloVisible"
+        [modal]="true"
+        [style]="{ width: '450px' }"
+        [breakpoints]="{ '960px': '90vw' }"
+        [closable]="false">
+
+        <div class="p-fluid">
+          <div class="field">
+            <label>Fecha de Inicio</label>
+            <p-calendar [(ngModel)]="fechaInicioParalelo" dateFormat="yy-mm-dd" [showIcon]="true" [appendTo]="'body'"></p-calendar>
+          </div>
+
+          <div class="field">
+            <label>Fecha de Fin</label>
+            <p-calendar [(ngModel)]="fechaFinParalelo" dateFormat="yy-mm-dd" [showIcon]="true" [appendTo]="'body'"></p-calendar>
+          </div>
+
+          <div class="field">
+            <label>Observaciones</label>
+            <textarea pInputTextarea [(ngModel)]="observacionesParalelo" rows="4" autoResize="true"></textarea>
+          </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+          <button pButton label="Cancelar" icon="pi pi-times" class="p-button-danger" (click)="dialogParaleloVisible = false"></button>
+          <button 
+            pButton 
+            label="Generar Reporte" 
+            icon="pi pi-file" 
+            class="p-button-success"
+            [disabled]="!fechaInicioParalelo || !fechaFinParalelo || !observacionesParalelo"
+            (click)="generarReportePorParalelo()">
+          </button>
+        </ng-template>
+      </p-dialog>
+
+    </ng-container>
+  </div>
+</div>

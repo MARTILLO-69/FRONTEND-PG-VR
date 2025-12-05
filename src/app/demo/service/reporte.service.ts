@@ -31,4 +31,21 @@ export class ReporteService {
       const url = `${this.endpoint}avance?${params.toString()}`;
       window.open(url, '_blank');
     }
+
+    generarReportePorParalelo(fechaInicio: Date, fechaFin: Date, observaciones: string): void {
+      const formato = (f: Date) => f.toISOString().split('T')[0];
+      const params = new URLSearchParams({
+        fechaInicio: formato(fechaInicio),
+        fechaFin: formato(fechaFin),
+        observaciones,
+      });
+
+      const url = `${this.endpoint}avance/paralelo?${params.toString()}`;
+      window.open(url, '_blank'); // abre el PDF en nueva pestaña
+    }
+
+    generarReporteCredenciales(paralelo: string): void {
+      const url = `${this.endpoint}reporte/credenciales/${paralelo}`;
+      window.open(url, '_blank');
+    }
 }

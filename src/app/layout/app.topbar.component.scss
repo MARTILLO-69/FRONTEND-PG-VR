@@ -1,0 +1,117 @@
+/* PANEL DE NOTIFICACIONES */
+.panel-notis {
+    width: 320px;
+    border-radius: 12px !important;
+    padding: 0 !important;
+}
+
+.notis-container {
+    padding: 1rem;
+}
+
+.titulo-notis {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.no-notis {
+    text-align: center;
+    padding: 1rem;
+    color: #666;
+}
+
+.no-notis i {
+    font-size: 2rem;
+    margin-bottom: 0.3rem;
+}
+
+.noti-card {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-bottom: 0.5rem;
+    background: #f8f9fa;
+}
+
+.noti-card:hover {
+    background: #ececec;
+}
+
+.noti-icon {
+    font-size: 1.6rem;
+    margin-right: 0.8rem;
+    color: #d9534f;
+}
+
+.noti-texto h5 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.noti-texto p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.flecha {
+    margin-left: auto;
+    opacity: 0.5;
+}
+
+/* 🔔 BOTÓN DE NOTIFICACIONES */
+.topbar-notifications {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+}
+
+.notif-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background-color 0.25s ease;
+    position: relative;
+}
+
+.notif-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Animación del badge */
+.p-badge {
+    animation: pulse 1.4s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+.notif-btn i {
+    font-size: 1.7rem;
+    color: #ffd740; /* amarillo tipo alerta */
+}
+
+.notif-btn:hover i {
+    color: #f66464;
+}
+
+/* Animación de campana */
+.has-notification i {
+    animation: bellshake 1s ease infinite;
+}
+
+@keyframes bellshake {
+    0%, 100% { transform: rotate(0); }
+    25% { transform: rotate(10deg); }
+    75% { transform: rotate(-10deg); }
+}

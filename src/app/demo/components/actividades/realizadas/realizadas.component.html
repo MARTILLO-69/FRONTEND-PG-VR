@@ -1,67 +1,46 @@
 <div class="grid">
   <div class="col-12">
-     <div class="card">
-        <p-toolbar>
-            <!-- Sección izquierda: Título -->
-            <div class="p-toolbar-group-left">
-            <h4 class="m-0">Gestión de Preguntas</h4>
-            </div>
+    <div class="card">
+      <p-toolbar>
+        <!-- Sección izquierda -->
+        <div class="p-toolbar-group-left">
+          <h4 class="m-0">Gestión de Preguntas</h4>
+        </div>
 
-            <!-- Sección derecha: Botón agregar -->
-            <div class="p-toolbar-group-right">
-            <button 
-                pButton 
-                type="button" 
-                label="Nueva Pregunta" 
-                icon="pi pi-plus" 
-                class="p-button-success"
-                (click)="abrirDialogoCrear()"
-            ></button>
-            </div>
-        </p-toolbar>
-     </div>
-    <p-dialog 
-      header="Nueva Pregunta"
+        <!-- Sección derecha -->
+        <div class="p-toolbar-group-right">
+          <button
+            pButton
+            type="button"
+            label="Nueva Pregunta"
+            icon="pi pi-plus"
+            class="p-button-success"
+            (click)="abrirDialogoCrear()"
+          ></button>
+        </div>
+      </p-toolbar>
+    </div>
+
+    <!-- 🧩 Diálogo de creación / edición -->
+    <p-dialog
+      [header]="editandoPreguntaId ? 'Editar Pregunta' : 'Nueva Pregunta'"
       [(visible)]="dialogCrearVisible"
       [modal]="true"
-      [style]="{ width: '600px' }"
+      [style]="{ width: '650px' }"
       [closable]="false"
       [dismissableMask]="true"
-      [breakpoints]="{ '960px': '90vw' }">
-
+      [breakpoints]="{ '960px': '90vw' }"
+    >
       <form [formGroup]="formularioPregunta">
         <div class="p-fluid">
-          <!-- <div class="field">
-            <label>Nivel</label>
-              <p-dropdown 
-                [options]="niveles" 
-                optionLabel="nombre" 
-                optionValue="nivel_id" 
-                formControlName="nivel_id"
-                [disabled]="niveles.length === 0"
-                [optionDisabled]="esNivelDeshabilitado"
-                placeholder="Seleccione un nivel">
-              </p-dropdown>
-          </div>
 
-          Actividad (se enviará al SP) 
-          <div class="field">
-            <label>Actividad</label>
-            <p-dropdown 
-              [options]="actividades" 
-              optionLabel="nombre" 
-              optionValue="actividad_id" 
-              formControlName="actividad_id"
-              placeholder="Seleccione una actividad">
-            </p-dropdown>
-          </div>-->
-          <!-- Nivel: solo se muestra cuando NO estás editando -->
+          <!-- Nivel -->
           <div class="field" *ngIf="!editandoPreguntaId">
             <label>Nivel</label>
-            <p-dropdown 
-              [options]="niveles" 
-              optionLabel="nombre" 
-              optionValue="nivel_id" 
+            <p-dropdown
+              [options]="niveles"
+              optionLabel="nombre"
+              optionValue="nivel_id"
               formControlName="nivel_id"
               [disabled]="niveles.length === 0"
               [optionDisabled]="esNivelDeshabilitado"
@@ -69,120 +48,293 @@
             </p-dropdown>
           </div>
 
-          <!-- Actividad: solo se muestra cuando NO estás editando -->
+          <!-- Actividad -->
           <div class="field" *ngIf="!editandoPreguntaId">
             <label>Actividad</label>
-            <p-dropdown 
-              [options]="actividades" 
-              optionLabel="nombre" 
-              optionValue="actividad_id" 
+            <p-dropdown
+              [options]="actividades"
+              optionLabel="nombre"
+              optionValue="actividad_id"
               formControlName="actividad_id"
               placeholder="Seleccione una actividad">
             </p-dropdown>
           </div>
 
-
-          <div class="field">
-            <label>Enunciado</label>
-            <textarea 
-              id="enunciado" 
-              pInputTextarea 
-              formControlName="enunciado" 
-              [autoResize]="true"
-              rows="4" 
-              class="w-full" 
-              placeholder="Escribe el enunciado completo aquí...">
-            </textarea>
-          </div>
-
-          <div class="field">
-            <label>Tipo de Pregunta</label>
-            <p-dropdown 
-              [options]="tiposPregunta"
-              formControlName="tipo_pregunta"
-              placeholder="Seleccione un tipo">
+          <!-- Categoría (solo Nivel 1) -->
+          <div class="field" *ngIf="formularioPregunta.get('nivel_id')?.value === 1">
+            <label>Categoría</label>
+            <p-dropdown
+              formControlName="categoria"
+              [options]="[
+                { label: 'Célula Animal', value: 'animal' },
+                { label: 'Célula Vegetal', value: 'vegetal' }
+              ]"
+              placeholder="Seleccione la categoría">
             </p-dropdown>
           </div>
 
+          <!-- Enunciado -->
+          <div class="field">
+            <label>Enunciado</label>
+            <textarea
+              id="enunciado"
+              pInputTextarea
+              formControlName="enunciado"
+              [autoResize]="true"
+              rows="4"
+              class="w-full"
+              [placeholder]="
+                formularioPregunta.get('tipo_pregunta')?.value === 'definicion'
+                  ? 'Ejemplo: La célula ________ realiza ________ procesos de ________.'
+                  : 'Escriba el enunciado de la pregunta...'
+              ">
+            </textarea>
+
+            <!-- 🧠 Vista previa de huecos -->
+            <div *ngIf="mostrarVistaPrevia" class="mt-2 p-2 border-round surface-border bg-gray-50">
+              <strong>Vista previa:</strong>
+              <div class="mt-2 p-2 border-round surface-border bg-gray-50">
+                <p class="mt-1" [innerHTML]="vistaPrevia"></p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tipo -->
+          <div class="field">
+            <label>Tipo de Pregunta</label>
+            <p-dropdown
+              [options]="tiposPregunta"
+              formControlName="tipo_pregunta"
+              [optionDisabled]="esTipoNivel2Deshabilitado"
+              placeholder="Seleccione tipo">
+            </p-dropdown>
+          </div>
+
+          <!-- Dificultad -->
           <div class="field">
             <label>Dificultad</label>
-            <p-dropdown 
+            <p-dropdown
               [options]="nivelesDificultad"
               formControlName="nivel_dificultad"
               placeholder="Seleccione nivel">
             </p-dropdown>
+
+            <!-- Descripciones -->
+            <small *ngIf="formularioPregunta.get('nivel_dificultad')?.value === 'B'" class="block text-muted mt-1">
+              🔰 En dificultad <b>Baja</b>: respuestas en <b>orden aleatorio</b>.
+            </small>
+            <small *ngIf="formularioPregunta.get('nivel_dificultad')?.value === 'M'" class="block text-muted mt-1">
+              ⚙️ En dificultad <b>Media</b>: <b>semi-aleatorias</b>.
+            </small>
+            <small *ngIf="formularioPregunta.get('nivel_dificultad')?.value === 'A'" class="block text-muted mt-1">
+              🔒 En dificultad <b>Alta</b>: <b>mantiene el orden</b> indicado por el docente.
+            </small>
           </div>
 
-          <!-- Aquí podrías colocar una subvista de respuestas si lo necesitas dinámicamente -->
-          <div *ngIf="respuestas?.length > 0">
-            <div formArrayName="respuestas">
-              <div
-                *ngFor="let respuesta of respuestas.controls; let i = index"
-                [formGroupName]="i"
-                class="formgrid grid mb-2 align-items-center"
-              >
-                <!-- Texto de respuesta -->
-                <div class="col-10">
-                  <input pInputText formControlName="texto" placeholder="Respuesta" />
-                </div>
+          <!-- ✅ Requiere orden -->
+          <div class="field-checkbox mb-3">
+            <p-checkbox
+              binary="true"
+              formControlName="requiere_orden"
+              label="Requiere orden de respuestas">
+            </p-checkbox>
+          </div>
 
-                <!-- Checkbox de correcta -->
-                <div class="col-2 text-center">
-                  <p-checkbox
-                    binary="true"
-                    formControlName="es_correcta"
-                    [label]="'✔️'"
-                    inputId="checkbox_{{ i }}"
-                  ></p-checkbox>
+          <!-- Bloque de respuestas -->
+          <div *ngIf="formularioPregunta.get('tipo_pregunta')?.value as tipo">
+            <div class="mt-2 mb-2">
+              <p *ngIf="tipo === 'definicion'" class="text-sm text-muted">
+                ➤ 6 opciones, <b>2 o 3 correctas</b>.
+              </p>
+              <p *ngIf="tipo === 'falso_verdadero'" class="text-sm text-muted">
+                ➤ 2 opciones, <b>1 correcta</b>.
+              </p>
+              <p *ngIf="tipo === 'acertijo'" class="text-sm text-muted">
+                ➤ 9 opciones, <b>3 correctas</b>.
+              </p>
+            </div>
+
+            <!-- Respuestas -->
+            <div formArrayName="respuestas" class="grid">
+              <div *ngFor="let respuesta of respuestas.controls; let i = index"
+                  [formGroupName]="i"
+                  class="col-12 md:col-6 flex align-items-center mb-2">
+
+                <div class="flex align-items-center w-full">
+                  <input
+                    pInputText
+                    formControlName="texto"
+                    placeholder="Respuesta {{ i + 1 }}"
+                    class="w-full mr-2"
+                  />
+
+                  <div class="flex align-items-center gap-1">
+                    <p-checkbox
+                      binary="true"
+                      formControlName="es_correcta"
+                      inputId="correcta_{{ i }}"
+                      (onChange)="actualizarOrdenRespuesta(i, $event)">
+                    </p-checkbox>
+
+                    <!-- 🧩 Etiqueta visual del orden -->
+                    <span *ngIf="respuesta.get('orden')?.value"
+                          class="text-xs text-primary font-bold ml-1">
+                      #{{ respuesta.get('orden')?.value }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
+
+
+            <!-- Validación -->
+            <small *ngIf="!validarRespuestas()" class="block text-red-500 mt-1">
+              ⚠️ Configuración incorrecta o número de respuestas inválido.
+            </small>
           </div>
         </div>
       </form>
 
+      <!-- Footer -->
       <ng-template pTemplate="footer">
-        <button pButton label="Cancelar" icon="pi pi-times" class="p-button-danger" (click)="cerrarDialogo()"></button>
-        <button pButton label="Guardar" icon="pi pi-check" class="p-button-success"  (click)="guardarPregunta()" [disabled]="formularioPregunta.invalid"></button>
+        <button
+          pButton
+          label="Cancelar"
+          icon="pi pi-times"
+          class="p-button-danger"
+          (click)="cerrarDialogo()">
+        </button>
+        <button
+          pButton
+          label="Guardar"
+          icon="pi pi-check"
+          class="p-button-success"
+          (click)="guardarPregunta()"
+          [disabled]="formularioPregunta.invalid">
+        </button>
       </ng-template>
     </p-dialog>
 
+
+    <!-- Toast general -->
     <p-toast></p-toast>
 
-    <!-- Tabla Nivel 1 -->
+    <!-- ==================== TABLAS ==================== -->
+
+    <!-- 🟢 NIVEL 1 -->
     <div class="card mb-4">
       <h5 class="text-black mb-3">Nivel 1</h5>
-      <p-table *ngIf="preguntasNivel1.length" [value]="preguntasNivel1" [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '60rem' }">
+      <div class="flex align-items-center justify-content-between mb-3">
+        <div class="text-sm text-gray-700">
+          <strong>Célula Animal:</strong>
+          <span [ngClass]="{ 'text-green-600': nivel1Animal < 20, 'text-red-600': nivel1Animal >= 20 }">
+            {{ nivel1Animal }}/20
+          </span>
+          &nbsp; | &nbsp;
+          <strong>Célula Vegetal:</strong>
+          <span [ngClass]="{ 'text-green-600': nivel1Vegetal < 20, 'text-red-600': nivel1Vegetal >= 20 }">
+            {{ nivel1Vegetal }}/20
+          </span>
+        </div>
+
+        <!-- 🟢 Indicador de estado general -->
+        <p-tag
+          [value]="nivel1Lleno ? 'Límite alcanzado' : 'Espacios disponibles'"
+          [severity]="nivel1Lleno ? 'danger' : 'success'">
+        </p-tag>
+      </div>
+
+      <p-table *ngIf="preguntasNivel1.length"
+               [value]="preguntasNivel1"
+               [paginator]="true"
+               [rows]="5"
+               [tableStyle]="{ 'min-width': '60rem' }">
+
         <ng-template pTemplate="header">
           <tr>
             <th>ID</th>
             <th>Pregunta</th>
             <th>Tipo</th>
             <th>Dificultad</th>
+            <th>Orden</th>
+            <th>Categoría</th>
             <th>Respuestas</th>
-            <th>Acciones</th> 
+            <th>Acciones</th>
           </tr>
         </ng-template>
+
         <ng-template pTemplate="body" let-pregunta>
-          <tr *ngIf="pregunta?.enunciado">
+          <tr>
             <td>{{ pregunta.pregunta_id }}</td>
             <td>{{ pregunta.enunciado }}</td>
-            <td>{{ pregunta.tipo_pregunta }}</td>
+            <td>
+              <p-tag
+                [value]="
+                  pregunta.tipo_pregunta === 'definicion'
+                    ? 'Definición'
+                    : pregunta.tipo_pregunta === 'falso_verdadero'
+                    ? 'Falso/Verdadero'
+                    : 'Acertijo'
+                "
+                [severity]="
+                  pregunta.tipo_pregunta === 'definicion'
+                    ? 'info'
+                    : pregunta.tipo_pregunta === 'falso_verdadero'
+                    ? 'success'
+                    : 'warning'
+                ">
+              </p-tag>
+            </td>
             <td>{{ pregunta.nivel_dificultad }}</td>
+            <td>
+              <p-tag
+                [value]="
+                  pregunta.nivel_dificultad === 'A'
+                    ? 'Secuencial'
+                    : pregunta.nivel_dificultad === 'M'
+                    ? 'Semi-aleatorio'
+                    : 'Aleatorio'
+                "
+                [severity]="
+                  pregunta.nivel_dificultad === 'A'
+                    ? 'danger'
+                    : pregunta.nivel_dificultad === 'M'
+                    ? 'warning'
+                    : 'info'
+                ">
+              </p-tag>
+            </td>
+            <td>
+              <p-tag
+                *ngIf="pregunta.categoria"
+                [value]="pregunta.categoria === 'animal' ? 'Animal' : 'Vegetal'"
+                [severity]="pregunta.categoria === 'animal' ? 'info' : 'success'">
+              </p-tag>
+            </td>
             <td>
               <div class="flex flex-wrap gap-2">
                 <p-tag *ngFor="let r of pregunta.respuestas"
-                  [value]="r.texto_respuesta"
-                  [severity]="r.es_correcta ? 'success' : 'danger'"
-                  [icon]="r.es_correcta ? 'pi pi-check' : 'pi pi-times'"
-                  rounded>
+                       [value]="r.texto_respuesta"
+                       [severity]="r.es_correcta ? 'success' : 'danger'"
+                       [icon]="r.es_correcta ? 'pi pi-check' : 'pi pi-times'"
+                       rounded>
                 </p-tag>
               </div>
             </td>
             <td>
               <div class="flex align-items-center gap-2">
-                <button pButton class="p-button-rounded p-button-info p-button-outlined" icon="pi pi-pencil" (click)="abrirDialogoEditar(pregunta)"></button>
-                <button pButton class="p-button-rounded p-button-danger p-button-outlined" icon="pi pi-trash" (click)="confirmarEliminar(pregunta)"></button>
+                <button
+                  pButton
+                  class="p-button-rounded p-button-info p-button-outlined"
+                  icon="pi pi-pencil"
+                  (click)="abrirDialogoEditar(pregunta)">
+                </button>
+                <button
+                  pButton
+                  class="p-button-rounded p-button-danger p-button-outlined"
+                  icon="pi pi-trash"
+                  (click)="confirmarEliminar(pregunta)">
+                </button>
               </div>
             </td>
           </tr>
@@ -190,33 +342,89 @@
       </p-table>
     </div>
 
-    <!-- Repetir para Nivel 2 -->
+    <!-- 🔵 NIVEL 2 -->
     <div class="card mb-4">
       <h5 class="text-black mb-3">Nivel 2</h5>
-      <p-table *ngIf="preguntasNivel2.length" [value]="preguntasNivel2" [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '60rem' }">
+      <div class="flex align-items-center justify-content-between mb-3">
+        <div class="text-sm text-gray-700">
+          <strong>Falso/Verdadero:</strong>
+          <span [ngClass]="{ 'text-green-600': nivel2FalsoVerdadero < 12, 'text-red-600': nivel2FalsoVerdadero >= 12 }">
+            {{ nivel2FalsoVerdadero }}/12
+          </span>
+          &nbsp; | &nbsp;
+          <strong>Acertijo:</strong>
+          <span [ngClass]="{ 'text-green-600': nivel2Acertijo < 8, 'text-red-600': nivel2Acertijo >= 8 }">
+            {{ nivel2Acertijo }}/8
+          </span>
+        </div>
+
+        <p-tag
+          [value]="nivel2Lleno ? 'Límite alcanzado' : 'Espacios disponibles'"
+          [severity]="nivel2Lleno ? 'danger' : 'success'">
+        </p-tag>
+      </div>
+      <p-table *ngIf="preguntasNivel2.length"
+               [value]="preguntasNivel2"
+               [paginator]="true"
+               [rows]="5"
+               [tableStyle]="{ 'min-width': '60rem' }">
+
         <ng-template pTemplate="header">
           <tr>
             <th>ID</th>
             <th>Pregunta</th>
             <th>Tipo</th>
             <th>Dificultad</th>
+            <th>Orden</th>
             <th>Respuestas</th>
-            <th>Acciones</th> 
+            <th>Acciones</th>
           </tr>
         </ng-template>
+
         <ng-template pTemplate="body" let-pregunta>
-          <tr *ngIf="pregunta?.enunciado">
+          <tr>
             <td>{{ pregunta.pregunta_id }}</td>
             <td>{{ pregunta.enunciado }}</td>
-            <td>{{ pregunta.tipo_pregunta }}</td>
+            <td>
+              <p-tag
+                [value]="
+                  pregunta.tipo_pregunta === 'falso_verdadero'
+                    ? 'Falso/Verdadero'
+                    : 'Acertijo'
+                "
+                [severity]="
+                  pregunta.tipo_pregunta === 'falso_verdadero'
+                    ? 'success'
+                    : 'warning'
+                ">
+              </p-tag>
+            </td>
             <td>{{ pregunta.nivel_dificultad }}</td>
+            <td>
+              <p-tag
+                [value]="
+                  pregunta.nivel_dificultad === 'A'
+                    ? 'Secuencial'
+                    : pregunta.nivel_dificultad === 'M'
+                    ? 'Semi-aleatorio'
+                    : 'Aleatorio'
+                "
+                [severity]="
+                  pregunta.nivel_dificultad === 'A'
+                    ? 'danger'
+                    : pregunta.nivel_dificultad === 'M'
+                    ? 'warning'
+                    : 'info'
+                ">
+              </p-tag>
+            </td>
             <td>
               <div class="flex flex-wrap gap-2">
                 <p-tag *ngFor="let r of pregunta.respuestas"
-                  [value]="r.texto_respuesta"
-                  [severity]="r.es_correcta ? 'success' : 'danger'"
-                  [icon]="r.es_correcta ? 'pi pi-check' : 'pi pi-times'"
-                  rounded>
+                       [value]="r.texto_respuesta"
+                       [severity]="r.es_correcta ? 'success' : 'danger'"
+                       [icon]="r.es_correcta ? 'pi pi-check' : 'pi pi-times'"
+                       rounded>
                 </p-tag>
               </div>
             </td>
@@ -231,33 +439,75 @@
       </p-table>
     </div>
 
-    <!-- Repetir para Nivel 3 -->
+    <!-- 🔴 NIVEL 3 -->
     <div class="card mb-4">
       <h5 class="text-black mb-3">Nivel 3</h5>
-      <p-table *ngIf="preguntasNivel3.length" [value]="preguntasNivel3" [paginator]="true" [rows]="5" [tableStyle]="{ 'min-width': '60rem' }">
+      <!-- 🧮 Resumen de preguntas Nivel 3 -->
+      <div class="flex align-items-center justify-content-between mb-3">
+        <div class="text-sm text-gray-700">
+          <strong>Acertijos registrados:</strong>
+          <span [ngClass]="{ 'text-green-600': nivel3Acertijo < 12, 'text-red-600': nivel3Acertijo >= 12 }">
+            {{ nivel3Acertijo }}/12
+          </span>
+        </div>
+
+        <p-tag
+          [value]="nivel3Lleno ? 'Límite alcanzado' : 'Espacios disponibles'"
+          [severity]="nivel3Lleno ? 'danger' : 'success'">
+        </p-tag>
+      </div>
+
+      <p-table *ngIf="preguntasNivel3.length"
+               [value]="preguntasNivel3"
+               [paginator]="true"
+               [rows]="5"
+               [tableStyle]="{ 'min-width': '60rem' }">
+
         <ng-template pTemplate="header">
           <tr>
             <th>ID</th>
             <th>Pregunta</th>
             <th>Tipo</th>
             <th>Dificultad</th>
+            <th>Orden</th>
             <th>Respuestas</th>
-            <th>Acciones</th> 
+            <th>Acciones</th>
           </tr>
         </ng-template>
+
         <ng-template pTemplate="body" let-pregunta>
-          <tr *ngIf="pregunta?.enunciado">
+          <tr>
             <td>{{ pregunta.pregunta_id }}</td>
             <td>{{ pregunta.enunciado }}</td>
-            <td>{{ pregunta.tipo_pregunta }}</td>
+            <td>
+              <p-tag value="Acertijo" severity="warning"></p-tag>
+            </td>
             <td>{{ pregunta.nivel_dificultad }}</td>
+            <td>
+              <p-tag
+                [value]="
+                  pregunta.nivel_dificultad === 'A'
+                    ? 'Secuencial'
+                    : pregunta.nivel_dificultad === 'M'
+                    ? 'Semi-aleatorio'
+                    : 'Aleatorio'
+                "
+                [severity]="
+                  pregunta.nivel_dificultad === 'A'
+                    ? 'danger'
+                    : pregunta.nivel_dificultad === 'M'
+                    ? 'warning'
+                    : 'info'
+                ">
+              </p-tag>
+            </td>
             <td>
               <div class="flex flex-wrap gap-2">
                 <p-tag *ngFor="let r of pregunta.respuestas"
-                  [value]="r.texto_respuesta"
-                  [severity]="r.es_correcta ? 'success' : 'danger'"
-                  [icon]="r.es_correcta ? 'pi pi-check' : 'pi pi-times'"
-                  rounded>
+                       [value]="r.texto_respuesta"
+                       [severity]="r.es_correcta ? 'success' : 'danger'"
+                       [icon]="r.es_correcta ? 'pi pi-check' : 'pi pi-times'"
+                       rounded>
                 </p-tag>
               </div>
             </td>
@@ -272,17 +522,15 @@
       </p-table>
     </div>
 
-    <p-confirmDialog 
+    <p-confirmDialog
       key="confirmarEliminar"
-      header="Confirmar Eliminación" 
-      icon="pi pi-exclamation-triangle" 
-      message="¿Estás seguro de que deseas eliminar esta pregunta?" 
-      acceptLabel="Sí" 
+      header="Confirmar Eliminación"
+      icon="pi pi-exclamation-triangle"
+      message="¿Estás seguro de que deseas eliminar esta pregunta?"
+      acceptLabel="Sí"
       rejectLabel="No"
       acceptButtonStyleClass="p-button-danger"
       rejectButtonStyleClass="p-button-secondary">
     </p-confirmDialog>
-    
   </div>
 </div>
-

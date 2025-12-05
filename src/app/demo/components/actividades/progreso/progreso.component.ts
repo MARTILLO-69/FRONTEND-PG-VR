@@ -52,6 +52,12 @@ export class ProgresoComponent implements OnInit {
     fechaFin!: Date;
     observaciones: string = '';
 
+    // 🔹 Reporte general por paralelo
+    dialogParaleloVisible: boolean = false;
+    fechaInicioParalelo!: Date;
+    fechaFinParalelo!: Date;
+    observacionesParalelo: string = '';
+
     @ViewChild('filter') filter!: ElementRef;
 
     constructor(private reporteService : ReporteService) { }
@@ -84,6 +90,22 @@ export class ProgresoComponent implements OnInit {
         this.observaciones
     );
         this.dialogVisible = false;
+    }
+
+    abrirDialogoParalelo() {
+        this.fechaInicioParalelo = null!;
+        this.fechaFinParalelo = null!;
+        this.observacionesParalelo = '';
+        this.dialogParaleloVisible = true;
+    }
+
+    generarReportePorParalelo() {
+        this.reporteService.generarReportePorParalelo(
+        this.fechaInicioParalelo,
+        this.fechaFinParalelo,
+        this.observacionesParalelo
+        );
+        this.dialogParaleloVisible = false;
     }
 
     formatDateToString(date: Date): string {
